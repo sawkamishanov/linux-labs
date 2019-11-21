@@ -3,7 +3,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define PATH "/home/mishanov/Study/LabsLinux/Lab3/second"
+#define PATH "second"
 
 typedef struct fork_delays {
     int parent_delay;
@@ -24,26 +24,28 @@ int main(int argc, char* argv[]) {
     printf("Введите путь к файлу: ");
     scanf("%s", path);
     if ((file = fopen(path, "w")) == NULL) {
-        perror("Error: ");
+        perror("open file");
     }
+
     fprintf(file, 
             "Задержки\n Предок: %d sec, Потомок 1 (fork): %d sec, Потомок 2 (vfork): %d sec\n\n", 
             dl.parent_delay, dl.fork_delay, dl.vfork_delay);
     fclose(file);
-    if (fork() == 0) {
+    if (!fork()) {
         sleep(dl.fork_delay);
         file = fopen(path, "a");
         fprint_pid("Потомок 1 (fork)", file);
         fclose(file);
         exit(EXIT_SUCCESS);
-    }
-    if (vfork() == 0) {
-        sleep(dl.vfork_delay);
-        file = fopen(path, "a");
-        fprint_pid("Потомок 2 (vfork)", file);
-        fclose(file);
-        execl(PATH, PATH, NULL);
-        exit(EXIT_SUCCESS);
+    } else {
+        if (!vfork()) {
+            sleep(dl.vfork_delay);
+            file = fopen(path, "a");
+            fprint_pid("Потомок 2 (vfork)", file);
+            fclose(file);
+            execl(PATH, PATH, NULL);
+            exit(EXIT_SUCCESS);
+        }
     }
     sleep(dl.parent_delay);
     file = fopen(path, "a");
