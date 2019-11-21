@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "file.c"
 
 #define PATH "/home/mishanov/Study/LabsLinux/Lab3/second"
 
@@ -12,10 +11,11 @@ typedef struct fork_delays {
     int vfork_delay;
 } delay;
 
-void fprint_pid(const char*);
+void fprint_pid(const char*, FILE*);
 delay input_delays(void);
 
 int main(int argc, char* argv[]) {
+    FILE* file = NULL;
     delay dl;
     const int SIZE = 256;
     char path[SIZE];
@@ -33,26 +33,26 @@ int main(int argc, char* argv[]) {
     if (fork() == 0) {
         sleep(dl.fork_delay);
         file = fopen(path, "a");
-        fprint_pid("Потомок 1 (fork)");
+        fprint_pid("Потомок 1 (fork)", file);
         fclose(file);
         exit(EXIT_SUCCESS);
     }
     if (vfork() == 0) {
         sleep(dl.vfork_delay);
         file = fopen(path, "a");
-        fprint_pid("Потомок 2 (vfork)");
+        fprint_pid("Потомок 2 (vfork)", file);
         fclose(file);
         execl(PATH, PATH, NULL);
         exit(EXIT_SUCCESS);
     }
     sleep(dl.parent_delay);
     file = fopen(path, "a");
-    fprint_pid("Предок");
+    fprint_pid("Предок", file);
     fclose(file);
     return 0;
 }
 
-void fprint_pid(const char* path) {
+void fprint_pid(const char* path, FILE* file) {
     pid_t pid = getpid();
     fprintf(file,
     "%s:\n\
