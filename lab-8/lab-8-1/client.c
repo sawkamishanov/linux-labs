@@ -28,9 +28,11 @@ int main(int argc, char* argv[]) {
     for (int timer = init_sleep(); timer > 0; --timer) {
         printf("Ожидание сообщения %d сек\n", timer);
         /* Сообщение серверу о запуске клиента */
-        send_message(id_msg, &buf, 1, "");
+        send_message(id_msg, &buf, 1, "", 0);
         /* Чтение сообщения от сервера */
-        read_message(id_msg, &buf, 2);
+        if (!read_message(id_msg, &buf, 2)) {
+            timer = buf.timer;
+        }
         sleep(1);
     }
 
