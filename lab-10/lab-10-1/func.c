@@ -1,28 +1,35 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
-#include <sys/sem.h>
 #include <sys/shm.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-#define KEY 128
-#define SIZE_BUF 24
+/* semaphore POSIX */
+#include <semaphore.h>
+
+#define PATH "text.txt"
+#define KEY 100
+#define SIZE_BUF 512
 
 typedef struct {
     char buf[SIZE_BUF];
     int front;
     int rear;
-} buffer;
+} r_buffer;
 
 typedef struct {
-    buffer buf;
-    //
-    //
+    r_buffer buf;
+    sem_t empty;
+    sem_t full;
 } shared;
 
+FILE* file = NULL;
 int id_shm = -1;
 
+/* Работа с файлом */
+int open_file();
+int close_file();
 /* Запрос на разделяемый сегмент памяти */
 int req_shm();
 /* Включение разделяемой памяти в пространство процесса */
@@ -30,6 +37,24 @@ void* in_shm(int);
 /* Полное уничтожение разделяемого сегмента */
 int dest_shm(int);
 
+/* Создание семафора */
+int create_sem();
+
+int open_file() {
+    if ((file = fopen(PATH, "r")) == NULL) {
+        perror("open file");
+        exit(EXIT_FAILURE);
+    }
+    return 0;
+}
+
+int close_file() {
+    if (fclose(file) == EOF) {
+        perror("close file");
+        return -1;
+    }
+    return 0;
+}
 
 int req_shm() {
     int id_shm;
@@ -67,3 +92,13 @@ int dest_shm(int id_shm) {
 
     return 0;
 }
+
+// int create_sem() {
+//     int id_sem;
+//     if (id_sem = semget((key_t)SEM_KEY, SIZE_BUF, (0666 | IPC_CREAT))) {
+//         perror("create_sem -> semget");
+//         return -1;
+//     }
+
+//     return id_sem;
+// }
