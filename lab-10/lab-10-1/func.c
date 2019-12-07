@@ -92,13 +92,3 @@ int dest_shm(int id_shm) {
 
     return 0;
 }
-
-// int create_sem() {
-//     int id_sem;
-//     if (id_sem = semget((key_t)SEM_KEY, SIZE_BUF, (0666 | IPC_CREAT))) {
-//         perror("create_sem -> semget");
-//         return -1;
-//     }
-
-//     return id_sem;
-// }
