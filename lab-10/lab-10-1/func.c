@@ -1,16 +1,19 @@
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
+#include <string.h>
 
 /* semaphore POSIX */
 #include <semaphore.h>
 
 #define PATH "text.txt"
 #define KEY 100
-#define SIZE_BUF 512
+#define SIZE_BUF 4
 
 typedef struct {
     char buf[SIZE_BUF];
@@ -22,6 +25,7 @@ typedef struct {
     r_buffer buf;
     sem_t empty;
     sem_t full;
+    sem_t end;
 } shared;
 
 FILE* file = NULL;
